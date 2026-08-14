@@ -1,6 +1,6 @@
 <table border="0" cellpadding="0" cellspacing="0"><tr>
-<td width="112"><img src="media/icon.png" alt="Gitignore Helper" width="96" /></td>
-<td><h1>Gitignore Helper for VS Code</h1>Right-click any file or folder in the Explorer to add it to <code>.gitignore</code> — either locally in your repo, or globally across all projects.</td>
+<td width="112"><img src="media/icon.png" alt="Quick Ignore" width="96" /></td>
+<td><h1>Quick Ignore for VS Code</h1>Right-click any file or folder in the Explorer to add it to <code>.gitignore</code> — either locally in your repo, or globally across all projects.</td>
 </tr></table>
 
 ## Features
@@ -18,10 +18,10 @@ Right-click any file or folder in the Explorer and choose either:
 
 | Option | What it does |
 | --- | --- |
-| **Gitignore Helper: Add to local .gitignore** | Appends a pattern to `.gitignore` at your repo root. Creates the file if it doesn't exist. |
-| **Gitignore Helper: Add to global .gitignore** | Appends a pattern to your global excludes file (`~/.gitignore` or `core.excludesfile`). |
+| **Quick Ignore: Add to local .gitignore** | Appends a pattern to `.gitignore` at your repo root. Creates the file if it doesn't exist. |
+| **Quick Ignore: Add to global .gitignore** | Appends a pattern to your global excludes file (`~/.gitignore` or `core.excludesfile`). |
 
-![Gitignore Helper context menu](media/screenshot-menu.png)
+![Quick Ignore context menu](media/screenshot-menu.png)
 
 ## Usage
 
@@ -40,8 +40,8 @@ That's it — no configuration needed.
 
 | Command | Title |
 | --- | --- |
-| `gitignoreHelper.addToLocalGitignore` | Gitignore Helper: Add to local .gitignore |
-| `gitignoreHelper.addToGlobalGitignore` | Gitignore Helper: Add to global .gitignore |
+| `quickIgnore.addToLocalGitignore` | Quick Ignore: Add to local .gitignore |
+| `quickIgnore.addToGlobalGitignore` | Quick Ignore: Add to global .gitignore |
 
 Both commands are available in the Explorer context menu for any file or folder.
 

@@ -1,7 +1,7 @@
 version: 0.1.0
 date: 2026-08-14
 highlights:
-  - First release of Gitignore Helper — right-click any file or folder in the Explorer to add it to `.gitignore` locally or globally.
+  - First release of Quick Ignore — right-click any file or folder in the Explorer to add it to `.gitignore` locally or globally.
 added:
   - "Add to local .gitignore" context menu command — appends a pattern to your repo's `.gitignore`.
   - "Add to global .gitignore" context menu command — appends a pattern to your global excludes file.

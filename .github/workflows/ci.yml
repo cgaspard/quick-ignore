@@ -18,4 +18,4 @@ jobs:
       - run: npm ci
       - run: npm run check-types
       - run: npm run compile
-      - run: npx vsce package --out add-to-gitignore-dev.vsix
+      - run: npx vsce package --out quick-ignore-dev.vsix

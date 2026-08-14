@@ -1,19 +1,19 @@
 {
-  "name": "gitignore-helper",
-  "displayName": "Gitignore Helper",
-  "description": "Right-click any file or folder in the Explorer to add it to .gitignore — locally or globally. By cgaspard.",
+  "name": "quick-ignore",
+  "displayName": "Quick Ignore",
+  "description": "Right-click any file or folder in the Explorer to add it to .gitignore — locally or globally.",
   "version": "0.1.0",
   "publisher": "cgaspard",
   "license": "MIT",
   "icon": "media/icon.png",
   "repository": {
     "type": "git",
-    "url": "https://github.com/cgaspard/gitignore-helper.git"
+    "url": "https://github.com/cgaspard/quick-ignore.git"
   },
   "bugs": {
-    "url": "https://github.com/cgaspard/gitignore-helper/issues"
+    "url": "https://github.com/cgaspard/quick-ignore/issues"
   },
-  "homepage": "https://github.com/cgaspard/gitignore-helper#readme",
+  "homepage": "https://github.com/cgaspard/quick-ignore#readme",
   "engines": {
     "vscode": "^1.104.0"
   },
@@ -31,12 +31,12 @@
   "contributes": {
     "commands": [
       {
-        "command": "gitignoreHelper.addToLocalGitignore",
-        "title": "Gitignore Helper: Add to local .gitignore"
+        "command": "quickIgnore.addToLocalGitignore",
+        "title": "Quick Ignore: Add to local .gitignore"
       },
       {
-        "command": "gitignoreHelper.addToGlobalGitignore",
-        "title": "Gitignore Helper: Add to global .gitignore"
+        "command": "quickIgnore.addToGlobalGitignore",
+        "title": "Quick Ignore: Add to global .gitignore"
       }
     ],
     "menus": {
@@ -44,12 +44,12 @@
         {
           "when": "resourceScheme == file",
           "group": "2_gitignore",
-          "command": "gitignoreHelper.addToLocalGitignore"
+          "command": "quickIgnore.addToLocalGitignore"
         },
         {
           "when": "resourceScheme == file",
           "group": "2_gitignore",
-          "command": "gitignoreHelper.addToGlobalGitignore"
+          "command": "quickIgnore.addToGlobalGitignore"
         }
       ]
     }
