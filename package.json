@@ -1,19 +1,19 @@
 {
-  "name": "add-to-gitignore",
-  "displayName": "Add to .gitignore",
-  "description": "Right-click any file or folder in the Explorer to add it to .gitignore — either locally or globally.",
+  "name": "gitignore-helper",
+  "displayName": "Gitignore Helper",
+  "description": "Right-click any file or folder in the Explorer to add it to .gitignore — locally or globally. By cgaspard.",
   "version": "0.1.0",
   "publisher": "cgaspard",
   "license": "MIT",
   "icon": "media/icon.png",
   "repository": {
     "type": "git",
-    "url": "https://github.com/cgaspard/addtogitignore.git"
+    "url": "https://github.com/cgaspard/gitignore-helper.git"
   },
   "bugs": {
-    "url": "https://github.com/cgaspard/addtogitignore/issues"
+    "url": "https://github.com/cgaspard/gitignore-helper/issues"
   },
-  "homepage": "https://github.com/cgaspard/addtogitignore#readme",
+  "homepage": "https://github.com/cgaspard/gitignore-helper#readme",
   "engines": {
     "vscode": "^1.104.0"
   },
@@ -31,12 +31,12 @@
   "contributes": {
     "commands": [
       {
-        "command": "addtogitignore.addToLocalGitignore",
-        "title": "Add to .gitignore (current folder)"
+        "command": "gitignoreHelper.addToLocalGitignore",
+        "title": "Gitignore Helper: Add to local .gitignore"
       },
       {
-        "command": "addtogitignore.addToGlobalGitignore",
-        "title": "Add to global .gitignore"
+        "command": "gitignoreHelper.addToGlobalGitignore",
+        "title": "Gitignore Helper: Add to global .gitignore"
       }
     ],
     "menus": {
@@ -44,12 +44,12 @@
         {
           "when": "resourceScheme == file",
           "group": "2_gitignore",
-          "command": "addtogitignore.addToLocalGitignore"
+          "command": "gitignoreHelper.addToLocalGitignore"
         },
         {
           "when": "resourceScheme == file",
           "group": "2_gitignore",
-          "command": "addtogitignore.addToGlobalGitignore"
+          "command": "gitignoreHelper.addToGlobalGitignore"
         }
       ]
     }

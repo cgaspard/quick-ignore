@@ -49,7 +49,7 @@ out.push('---');
 out.push('Install the `.vsix` attached to this release via:');
 out.push('');
 out.push('```bash');
-out.push(`code --install-extension add-to-gitignore-${data.version}.vsix`);
+out.push(`code --install-extension gitignore-helper-${data.version}.vsix`);
 out.push('```');
 
 process.stdout.write(out.join('\n') + '\n');

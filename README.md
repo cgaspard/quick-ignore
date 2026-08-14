@@ -1,6 +1,6 @@
 <table border="0" cellpadding="0" cellspacing="0"><tr>
-<td width="112"><img src="media/icon.png" alt="Add to .gitignore" width="96" /></td>
-<td><h1>Add to .gitignore for VS Code</h1>Right-click any file or folder in the Explorer to add it to <code>.gitignore</code> — either locally in your repo, or globally across all projects.</td>
+<td width="112"><img src="media/icon.png" alt="Gitignore Helper" width="96" /></td>
+<td><h1>Gitignore Helper for VS Code</h1>Right-click any file or folder in the Explorer to add it to <code>.gitignore</code> — either locally in your repo, or globally across all projects.</td>
 </tr></table>
 
 ## Features
@@ -18,16 +18,16 @@ Right-click any file or folder in the Explorer and choose either:
 
 | Option | What it does |
 | --- | --- |
-| **Add to .gitignore (current folder)** | Appends a pattern to `.gitignore` at your repo root. Creates the file if it doesn't exist. |
-| **Add to global .gitignore** | Appends a pattern to your global excludes file (`~/.gitignore` or `core.excludesfile`). |
+| **Gitignore Helper: Add to local .gitignore** | Appends a pattern to `.gitignore` at your repo root. Creates the file if it doesn't exist. |
+| **Gitignore Helper: Add to global .gitignore** | Appends a pattern to your global excludes file (`~/.gitignore` or `core.excludesfile`). |
 
-![Add to .gitignore context menu](media/screenshot-menu.png)
+![Gitignore Helper context menu](media/screenshot-menu.png)
 
 ## Usage
 
 1. Install the extension from the VS Code Marketplace
 2. Right-click any file or folder in the Explorer sidebar
-3. Choose **Add to .gitignore (current folder)** or **Add to global .gitignore**
+3. Choose **Add to local .gitignore** or **Add to global .gitignore**
 4. The pattern is appended and the `.gitignore` file opens for review
 
 That's it — no configuration needed.
@@ -40,8 +40,8 @@ That's it — no configuration needed.
 
 | Command | Title |
 | --- | --- |
-| `addtogitignore.addToLocalGitignore` | Add to .gitignore (current folder) |
-| `addtogitignore.addToGlobalGitignore` | Add to global .gitignore |
+| `gitignoreHelper.addToLocalGitignore` | Gitignore Helper: Add to local .gitignore |
+| `gitignoreHelper.addToGlobalGitignore` | Gitignore Helper: Add to global .gitignore |
 
 Both commands are available in the Explorer context menu for any file or folder.
 

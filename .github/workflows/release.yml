@@ -92,12 +92,12 @@ jobs:
           if [ "${{ steps.ver.outputs.channel }}" = "prerelease" ]; then
             PRE="--pre-release"
           fi
-          npx vsce package $PRE --out "add-to-gitignore-${VER}.vsix"
+          npx vsce package $PRE --out "gitignore-helper-${VER}.vsix"
 
       - name: Locate .vsix
         id: vsix
         run: |
-          VSIX="add-to-gitignore-${{ steps.ver.outputs.version }}.vsix"
+          VSIX="gitignore-helper-${{ steps.ver.outputs.version }}.vsix"
           if [ ! -f "$VSIX" ]; then
             echo "::error::No .vsix produced."
             exit 1

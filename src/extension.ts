@@ -120,13 +120,13 @@ async function addToGlobalGitignore(uri: vscode.Uri): Promise<void> {
 
 export function activate(context: vscode.ExtensionContext): void {
   context.subscriptions.push(
-    vscode.commands.registerCommand('addtogitignore.addToLocalGitignore', async (uri?: vscode.Uri | { uri: vscode.Uri; name: string }) => {
+    vscode.commands.registerCommand('gitignoreHelper.addToLocalGitignore', async (uri?: vscode.Uri | { uri: vscode.Uri; name: string }) => {
       if (!uri) return;
       const targetUri = 'uri' in uri ? uri.uri : uri;
       await addToLocalGitignore(targetUri);
     }),
 
-    vscode.commands.registerCommand('addtogitignore.addToGlobalGitignore', async (uri?: vscode.Uri | { uri: vscode.Uri; name: string }) => {
+    vscode.commands.registerCommand('gitignoreHelper.addToGlobalGitignore', async (uri?: vscode.Uri | { uri: vscode.Uri; name: string }) => {
       if (!uri) return;
       const targetUri = 'uri' in uri ? uri.uri : uri;
       await addToGlobalGitignore(targetUri);
