@@ -88,7 +88,11 @@ jobs:
       - name: Package .vsix
         run: |
           VER="${{ steps.ver.outputs.version }}"
-          npx vsce package --out "add-to-gitignore-${VER}.vsix"
+          PRE=""
+          if [ "${{ steps.ver.outputs.channel }}" = "prerelease" ]; then
+            PRE="--pre-release"
+          fi
+          npx vsce package $PRE --out "add-to-gitignore-${VER}.vsix"
 
       - name: Locate .vsix
         id: vsix
