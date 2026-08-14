@@ -1,0 +1,13 @@
+version: 0.1.0
+date: 2026-08-14
+highlights:
+  - First release. Right-click any file or folder in the Explorer to add it to `.gitignore` — locally or globally.
+added:
+  - "Add to .gitignore (current folder)" context menu command — appends a pattern to your repo's `.gitignore`.
+  - "Add to global .gitignore" context menu command — appends a pattern to your global excludes file.
+  - Smart pattern generation: relative paths from repo root for files, trailing-slash patterns for folders.
+  - Duplicate protection: won't add a pattern that already exists.
+  - Opens the resulting `.gitignore` file in the editor after writing.
+changed: []
+fixed: []
+removed: []

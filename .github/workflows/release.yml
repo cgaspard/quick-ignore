@@ -3,12 +3,14 @@ name: Release
 on:
   push:
     tags:
-      - "v*"
+      - 'v*.*.*'
 
 permissions:
   contents: write
 
 jobs:
+  # Validate the tag/version/notes once and create the GitHub Release shell,
+  # then package and publish to Marketplace.
   release:
     name: Build and publish release
     runs-on: ubuntu-latest
@@ -20,55 +22,109 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
-          cache: "npm"
+          node-version: '20'
+          cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Resolve version
-        id: version
+      # ── Resolve version + channel from tag ──────────────────────────────
+      - name: Resolve version + channel
+        id: ver
         run: |
-          tag="${GITHUB_REF_NAME}"
-          version="${tag#v}"
-          pkg_version=$(node -p "require('./package.json').version")
+          TAG="${GITHUB_REF_NAME}"
+          VERSION="${TAG#v}"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          # Channel policy (VS Code Marketplace pre-release convention):
+          #   - a -suffix tag (v1.2.3-rc.1) → GitHub-only draft, never published
+          #   - ODD minor  (v0.1.0)         → Marketplace PRE-RELEASE (beta)
+          #   - EVEN minor (v0.2.0)         → Marketplace stable
+          MINOR=$(echo "$VERSION" | cut -d. -f2 | cut -d- -f1)
+          if [[ "$VERSION" == *-* ]]; then
+            echo "channel=none" >> "$GITHUB_OUTPUT"
+            echo "prerelease=true" >> "$GITHUB_OUTPUT"
+          elif [ $((MINOR % 2)) -eq 1 ]; then
+            echo "channel=prerelease" >> "$GITHUB_OUTPUT"
+            echo "prerelease=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "channel=stable" >> "$GITHUB_OUTPUT"
+            echo "prerelease=false" >> "$GITHUB_OUTPUT"
+          fi
 
-          if [ "$version" != "$pkg_version" ]; then
-            echo "::error::Tag version ($version) does not match package.json version ($pkg_version)."
+      # ── Verify version consistency ──────────────────────────────────────
+      - name: Verify package.json version matches tag
+        run: |
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          if [ "$PKG_VERSION" != "${{ steps.ver.outputs.version }}" ]; then
+            echo "::error::package.json version ($PKG_VERSION) does not match tag (${{ steps.ver.outputs.version }})"
             exit 1
           fi
 
-          echo "tag=$tag" >> "$GITHUB_OUTPUT"
-          echo "version=$version" >> "$GITHUB_OUTPUT"
+      # ── Verify release notes file exists ────────────────────────────────
+      - name: Verify release notes file exists
+        run: |
+          FILE="releasenotes/${{ steps.ver.outputs.version }}.yaml"
+          if [ ! -f "$FILE" ]; then
+            echo "::error::Missing $FILE — every release needs a notes file"
+            exit 1
+          fi
 
-      - name: Build .vsix
-        run: npm run package:vsix
+      # ── Render release body from YAML ───────────────────────────────────
+      - name: Render release body from YAML
+        run: |
+          node scripts/render-release-notes.js "${{ steps.ver.outputs.version }}" > release-body.md
+          echo "--- Rendered notes ---"
+          cat release-body.md
+
+      # ── Typecheck + compile ─────────────────────────────────────────────
+      - name: Typecheck
+        run: npm run check-types
+
+      - name: Compile
+        run: npm run compile
+
+      # ── Package .vsix ───────────────────────────────────────────────────
+      - name: Package .vsix
+        run: |
+          VER="${{ steps.ver.outputs.version }}"
+          npx vsce package --out "add-to-gitignore-${VER}.vsix"
 
       - name: Locate .vsix
         id: vsix
         run: |
-          vsix=$(ls -1 *.vsix | head -n1)
-          if [ -z "$vsix" ]; then
+          VSIX="add-to-gitignore-${{ steps.ver.outputs.version }}.vsix"
+          if [ ! -f "$VSIX" ]; then
             echo "::error::No .vsix produced."
             exit 1
           fi
-          echo "path=$vsix" >> "$GITHUB_OUTPUT"
+          echo "path=$VSIX" >> "$GITHUB_OUTPUT"
 
+      # ── Create GitHub Release ───────────────────────────────────────────
       - name: Create GitHub Release
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh release create "${{ steps.version.outputs.tag }}" \
-            "${{ steps.vsix.outputs.path }}" \
-            --title "${{ steps.version.outputs.tag }}"
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.ver.outputs.tag }}
+          name: ${{ steps.ver.outputs.tag }}
+          body_path: release-body.md
+          draft: false
+          prerelease: ${{ steps.ver.outputs.prerelease == 'true' }}
+          files: ${{ steps.vsix.outputs.path }}
 
-      - name: Publish to VS Code Marketplace
-        if: ${{ !contains(steps.version.outputs.version, '-') }}
+      # ── Publish to VS Code Marketplace ──────────────────────────────────
+      # Odd-minor → pre-release channel, even-minor → stable.
+      # -suffix tags stay GitHub-only. Requires VSCE_PAT repo secret.
+      - name: Publish to VS Code Marketplace (${{ steps.ver.outputs.channel }})
+        if: ${{ steps.ver.outputs.channel != 'none' }}
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
         run: |
           if [ -z "$VSCE_PAT" ]; then
-            echo "::error::VSCE_PAT secret is not set."
+            echo "::error::VSCE_PAT secret is not set. Add a Personal Access Token (Marketplace > Manage scope) at Settings > Secrets and variables > Actions > VSCE_PAT."
             exit 1
           fi
-          npx vsce publish --packagePath "${{ steps.vsix.outputs.path }}"
+          PRE=""
+          if [ "${{ steps.ver.outputs.channel }}" = "prerelease" ]; then
+            PRE="--pre-release"
+          fi
+          npx vsce publish $PRE --packagePath "${{ steps.vsix.outputs.path }}"
