@@ -1,0 +1,72 @@
+{
+  "name": "add-to-gitignore",
+  "displayName": "Add to .gitignore",
+  "description": "Right-click any file or folder in the Explorer to add it to .gitignore — either locally or globally.",
+  "version": "0.1.0",
+  "publisher": "cgaspard",
+  "license": "MIT",
+  "icon": "media/icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cgaspard/addtogitignore.git"
+  },
+  "bugs": {
+    "url": "https://github.com/cgaspard/addtogitignore/issues"
+  },
+  "homepage": "https://github.com/cgaspard/addtogitignore#readme",
+  "engines": {
+    "vscode": "^1.104.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "gitignore",
+    "git",
+    "ignore",
+    "context menu"
+  ],
+  "activationEvents": [],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "addtogitignore.addToLocalGitignore",
+        "title": "Add to .gitignore (current folder)"
+      },
+      {
+        "command": "addtogitignore.addToGlobalGitignore",
+        "title": "Add to global .gitignore"
+      }
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "when": "resourceScheme == file",
+          "group": "2_gitignore",
+          "command": "addtogitignore.addToLocalGitignore"
+        },
+        {
+          "when": "resourceScheme == file",
+          "group": "2_gitignore",
+          "command": "addtogitignore.addToGlobalGitignore"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run package",
+    "compile": "npm run check-types && node esbuild.js",
+    "check-types": "tsc --noEmit",
+    "watch": "node esbuild.js --watch",
+    "package": "npm run check-types && node esbuild.js --production",
+    "package:vsix": "vsce package"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/vscode": "^1.104.0",
+    "@vscode/vsce": "^3.7.1",
+    "esbuild": "^0.20.0",
+    "typescript": "^5.3.0"
+  }
+}
