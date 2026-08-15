@@ -1,0 +1,10 @@
+version: 0.2.0
+date: 2026-08-15
+highlights:
+  - First stable release — Quick Ignore is now on the Marketplace stable channel, no pre-release opt-in needed.
+added: []
+changed:
+  - Promoted the 0.1.x pre-release line to stable, including the corrected command behavior — "Add to local .gitignore" writes next to the selected item, "Add to global .gitignore" writes to the workspace root.
+fixed:
+  - Marketplace listing now shows the icon and screenshot (images were broken while the repository was private).
+removed: []

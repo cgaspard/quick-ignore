@@ -2,7 +2,7 @@
   "name": "quick-ignore",
   "displayName": "Quick Ignore",
   "description": "Right-click any file or folder in the Explorer to add it to .gitignore — locally or globally.",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "publisher": "cgaspard",
   "license": "MIT",
   "icon": "media/icon.png",
