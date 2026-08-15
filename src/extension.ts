@@ -3,61 +3,20 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 /**
- * Resolve the user's global gitignore file path.
- * Falls back to ~/.gitignore if config lookup fails.
+ * Compute the anchored gitignore pattern for a resource, relative to the
+ * directory that holds the .gitignore. Folders get a trailing slash.
  */
-function getGlobalGitignorePath(): string {
-  try {
-    const cp = require('child_process');
-    const output = cp.execSync('git config --global core.excludesfile', { encoding: 'utf-8' }).trim();
-    if (output) return output;
-  } catch {
-    // git config not set, fall through
-  }
-  return path.join(require('os').homedir(), '.gitignore');
-}
-
-/**
- * Compute the pattern string to append for the given URI.
- * Folders get a trailing slash; files use the basename (or relative path from repo root).
- */
-function patternFor(uri: vscode.Uri, gitRoot: string | undefined): string {
+function patternFor(uri: vscode.Uri, baseDir: string): string {
+  const rel = path.relative(baseDir, uri.fsPath).split(path.sep).join('/');
   const isFolder = fs.statSync(uri.fsPath).isDirectory();
-
-  if (gitRoot && !isFolder) {
-    // Use path relative to the repo root so patterns are scoped properly
-    const rel = path.relative(gitRoot, uri.fsPath);
-    if (rel.startsWith('..')) return path.basename(uri.fsPath);
-    return rel;
-  }
-
-  if (isFolder) {
-    return path.basename(uri.fsPath) + '/';
-  }
-  return path.basename(uri.fsPath);
+  return '/' + rel + (isFolder ? '/' : '');
 }
 
 /**
- * Find the nearest parent directory that contains a .git folder (repo root).
+ * Append a pattern to a gitignore file, creating the file if needed.
+ * Returns false if the pattern was already present.
  */
-function findGitRoot(folderUri: vscode.Uri): string | undefined {
-  let dir = folderUri.fsPath;
-  const home = require('os').homedir();
-  while (dir !== path.dirname(dir) && dir !== home) {
-    if (fs.existsSync(path.join(dir, '.git'))) {
-      return dir;
-    }
-    dir = path.dirname(dir);
-  }
-  return undefined;
-}
-
-/**
- * Append a pattern to a gitignore file. Creates the file if it doesn't exist.
- */
-function appendToGitignore(filePath: string, pattern: string): vscode.Uri {
-  const uri = vscode.Uri.file(filePath);
-
+function appendToGitignore(filePath: string, pattern: string): boolean {
   let existing = '';
   try {
     existing = fs.readFileSync(filePath, 'utf-8');
@@ -65,57 +24,61 @@ function appendToGitignore(filePath: string, pattern: string): vscode.Uri {
     // file doesn't exist yet — that's fine
   }
 
-  // Avoid duplicates
   const lines = existing.split('\n').map(l => l.trim());
   if (lines.includes(pattern)) {
-    vscode.window.showInformationMessage(`"${pattern}" is already in .gitignore`);
-    return uri;
+    return false;
   }
 
   const separator = existing.length > 0 && !existing.endsWith('\n') ? '\n' : '';
   fs.writeFileSync(filePath, existing + separator + pattern + '\n', 'utf-8');
-
-  // If the file already existed and is open, reload it so VS Code sees the change
-  return uri;
+  return true;
 }
 
 /**
- * Add the selected resource to the .gitignore in its current folder.
+ * Append the pattern, then open the .gitignore and report what happened.
+ */
+async function addPatternAndReveal(gitignorePath: string, pattern: string, label: string): Promise<void> {
+  const existed = fs.existsSync(gitignorePath);
+
+  if (!appendToGitignore(gitignorePath, pattern)) {
+    vscode.window.showInformationMessage(`"${pattern}" is already in ${label}`);
+    return;
+  }
+
+  const doc = await vscode.workspace.openTextDocument(vscode.Uri.file(gitignorePath));
+  await vscode.window.showTextDocument(doc, { preview: false });
+  vscode.window.showInformationMessage(
+    existed ? `Added "${pattern}" to ${label}` : `Created ${label} with "${pattern}"`,
+  );
+}
+
+/**
+ * Add the selected resource to a .gitignore in the same folder as the resource.
  */
 async function addToLocalGitignore(uri: vscode.Uri): Promise<void> {
-  const folder = vscode.Uri.file(path.dirname(uri.fsPath));
-  const gitRoot = findGitRoot(folder);
-  const ignoreDir = gitRoot ?? folder.fsPath;
-
-  const pattern = patternFor(uri, gitRoot);
-  const targetPath = path.join(ignoreDir, '.gitignore');
-
-  const fileUri = appendToGitignore(targetPath, pattern);
-
-  // If .gitignore already existed, try to reveal the change in the editor
-  if (fs.existsSync(targetPath)) {
-    const doc = await vscode.workspace.openTextDocument(fileUri);
-    await vscode.window.showTextDocument(doc, { preview: false });
-    vscode.window.showInformationMessage(`Added "${pattern}" to .gitignore`);
-  } else {
-    vscode.window.showInformationMessage(`Created .gitignore with "${pattern}"`);
-  }
+  const folder = path.dirname(uri.fsPath);
+  const pattern = patternFor(uri, folder);
+  await addPatternAndReveal(path.join(folder, '.gitignore'), pattern, `${path.basename(folder)}/.gitignore`);
 }
 
 /**
- * Add the selected resource to the global .gitignore.
+ * Add the selected resource to the .gitignore at the root of its workspace folder.
  */
 async function addToGlobalGitignore(uri: vscode.Uri): Promise<void> {
-  const globalPath = getGlobalGitignorePath();
-  const pattern = path.basename(uri.fsPath) + (fs.statSync(uri.fsPath).isDirectory() ? '/' : '');
-
-  const fileUri = appendToGitignore(globalPath, pattern);
-  vscode.window.showInformationMessage(`Added "${pattern}" to global .gitignore`);
-
-  if (fs.existsSync(globalPath)) {
-    const doc = await vscode.workspace.openTextDocument(fileUri);
-    await vscode.window.showTextDocument(doc, { preview: false });
+  const workspaceFolder = vscode.workspace.getWorkspaceFolder(uri);
+  if (!workspaceFolder) {
+    vscode.window.showErrorMessage('Quick Ignore: the selected item is not inside an open workspace folder.');
+    return;
   }
+
+  const root = workspaceFolder.uri.fsPath;
+  if (path.relative(root, uri.fsPath) === '') {
+    vscode.window.showErrorMessage('Quick Ignore: cannot add the workspace root folder to its own .gitignore.');
+    return;
+  }
+
+  const pattern = patternFor(uri, root);
+  await addPatternAndReveal(path.join(root, '.gitignore'), pattern, 'workspace .gitignore');
 }
 
 export function activate(context: vscode.ExtensionContext): void {

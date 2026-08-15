@@ -1,0 +1,13 @@
+version: 0.1.1
+date: 2026-08-15
+highlights:
+  - Both commands now target the right `.gitignore` — local writes next to the selected file, global writes to the workspace root.
+added: []
+changed:
+  - "Add to global .gitignore" now appends to the `.gitignore` at the workspace root (previously it wrote to your user-level `core.excludesfile`).
+  - "Add to local .gitignore" now appends to a `.gitignore` in the same folder as the selected item (previously it wrote at the repo root).
+  - Patterns are now anchored with a leading `/` so only the exact item you clicked is ignored; folders keep their trailing slash.
+fixed:
+  - Adding a duplicate pattern no longer shows two notifications.
+  - The "Created .gitignore" message now appears when the file is actually created (it previously always said "Added").
+removed: []
